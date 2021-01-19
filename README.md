@@ -1,27 +1,32 @@
-# Flask 快速开发模板
+# 三查导航服务端源码
+
+## 技术栈
 
 Flask + MySQL + Redis + Celery + gunicorn
 
 使用 docker 将多个 app 组合起来，方便项目开发。
 
-第三方库：
+## 使用到的第三方库
+
 查看 `requirements` 文件夹
 
-wsgi.py 为入口文件
+## 项目说明
 
-# 使用
+https://showdoc.studyxiao.cn/web/#/1?page_id=2
+
+# 如何使用
+
+wsgi.py 为入口文件
 
 ## 安装
 
 ```bash
-git clone git@gitee.com:studyxiao/flax.git project_name
+git clone https://github.com/studyxiao/sancha-backend.git
 ```
 
 ## 配置
 
-1. 在 `requirements` 中填写依赖。
-
-2. 设置根目录下 `.env` 文件中变量（`.env.example` 为示例文件），重新设置 `app/config.py`。
+1. 设置根目录下 `.env` 文件中变量（`.env.example` 为示例文件），重新设置 `app/config.py`。
 
 ## 启动
 
@@ -50,12 +55,3 @@ docker-compose down
 # 未完成
 
 - 测试
-
-## TODO
-
-- 上传文件位置
-  自动生成文件夹，
-  命名规范
-  upload 文件夹位置上传和获取不在同一位置 bug
-
-前端 url 规范，统一设置位置
