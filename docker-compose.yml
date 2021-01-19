@@ -1,0 +1,83 @@
+version: "3.7"
+services:
+  web:
+    build:
+      context: "${PWD}"
+      dockerfile: "docker/Dockerfile"
+    env_file:
+      - ".env"
+    command: gunicorn wsgi:app -c python:docker.gunicorn
+    restart: always
+    ports:
+      - 8000:8000
+    volumes:
+      - ${PWD}:/app
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - front
+  mysql:
+    image: "mysql:8.0"
+    restart: always
+    env_file:
+      - ".env"
+    ports:
+      - 3307:3306
+    # expose:
+    #   - 3306
+    volumes:
+      - "mysql:/var/lib/mysql"
+      - "./docker/mysql/default.cnf:/etc/mysql/conf.d/mysql_charset.cnf"
+    networks:
+      - front
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
+  redis:
+    image: "redis:6.0.5-buster"
+    restart: always
+    env_file:
+      - ".env"
+    expose:
+      - 6379
+    # ports:
+    #   - "11551:6379"
+    volumes:
+      - "redis:/data"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - front
+  worker:
+    build:
+      context: "${PWD}"
+      dockerfile: "docker/Dockerfile"
+    restart: always
+    env_file:
+      - ".env"
+    command: celery worker -B -l info -A wsgi:celery
+    volumes:
+      - ${PWD}:/app
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - front
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - "11600:80"
+    volumes:
+      - ./public:/app
+      - ./docker/nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+    networks:
+      - front
+volumes:
+  mysql:
+    driver: local
+  redis: {}
+
+networks:
+  front:

@@ -1,0 +1,21 @@
+# python
+__pycache__/
+.venv/
+
+# flask
+migrations
+
+# env
+.env
+
+# vscode
+.vscode/
+
+# celery
+celerybeat-schedule
+
+logs
+upload/2021
+
+# db
+*.db
