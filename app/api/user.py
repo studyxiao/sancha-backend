@@ -7,7 +7,7 @@ from haw import manager
 from haw.utils import generate_token, load_token, random_filename
 from haw.task import send_valid_mail, send_forget_pwd_mail
 from haw.auth import get_tokens, login_required
-from haw.file import Uploader
+from haw.uploader import Uploader
 
 from . import bp
 from app.validator.user import NewUser, ForgetPassword, LoginForm

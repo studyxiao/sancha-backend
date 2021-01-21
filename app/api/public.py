@@ -2,7 +2,7 @@
 from flask import request, jsonify, send_from_directory
 from haw.captcha import Captcha
 from haw.auth import login_required
-from haw.file import Uploader
+from haw.uploader import Uploader
 
 from . import bp
 

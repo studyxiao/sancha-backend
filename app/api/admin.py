@@ -1,13 +1,14 @@
 from flask import jsonify
-# from flask_jwt_extended import get_current_user, verify_fresh_jwt_in_request
-# from flask_jwt_extended import get_jwt_identity
-from haw.exception import NotFound, Success
+
+from haw.exception import NotFound, Success, ParameterException
 from haw import manager
 from haw.request import RequestParser
 from haw.manager import get_ep_infos, route_meta, find_auth_module
 
 from . import bp
 from app.validator.admin import CreateGroup, UpdateGroup
+from app.validator.user import NewUser
+from app.validator.admin import UpdateUser
 
 
 @bp.route('/admin/group', methods=['GET'])
@@ -116,4 +117,33 @@ def get_admin_user():
 
 @bp.route('/admin/user', methods=['POST'])
 def create_user_by_admin():
-    return Success()
+    form = NewUser().validate_for_api()
+    form.data['avatar'] = 'upload/default/avatar.png'
+    {}.setdefault()
+    user = manager.user_model.create(**form.data.setdefault('is_valid', True))
+    return jsonify(user)
+
+
+@bp.route('/admin/user/<int:id>', methods=['PUT'])
+def update_user_by_admin(id):
+    """ 修改用户信息，不包括头像和背景图 """
+    form = UpdateUser().validate_for_api()
+    user = manager.user_model.get(id=id)
+    if user is None:
+        raise NotFound(msg='用户不存在')
+    same_name = manager.user_model.get(name=form.name.data)
+    if same_name and same_name.id != user.id:
+        raise ParameterException(msg='用户名已存在')
+    user = user.update(user.id, **form.data)
+    return jsonify(user)
+
+
+@bp.route('/admin/user/<int:id>', methods=['DELETE'])
+@route_meta(auth='删除文章')
+def delete_user_by_admin(id):
+    """ 删除用户接口 """
+    user = manager.user_model.get(id=id)
+    if user is None:
+        raise NotFound(msg='用户不存在')
+    manager.user_model.delete(user.id)
+    return Success(msg='删除成功')

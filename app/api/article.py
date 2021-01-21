@@ -6,7 +6,6 @@ from haw.auth import login_required, group_required
 from haw import route_meta
 from haw.exception import Success, NotFound, AuthFailed
 from haw.exception import ParameterException
-from haw.db import db
 
 from . import bp
 from app.model.article import Article, Category, Source
@@ -24,10 +23,9 @@ def get_articles():
     parser = RequestParser(Article)
     start, count = parser.paginate()
     query_fields, by_fields = parser.parse_query_fields()
-    print(query_fields)
-    print(by_fields)
     if by_fields == []:
         by_fields.append(Article.create_time.desc())
+
     if current_user:
         # 已登录
         articles = Article.get_articles_with_protect(current_user['uid'],
@@ -67,14 +65,11 @@ def get_self_articles():
 @group_required
 def create_article():
     """ 创建文章，只有管理员和超级管理员可以写作 """
-    # current_user = get_current_user()
+    current_user = get_current_user()
     form = CreateArticle().validate_for_api()
     data = form.data
-    data.update({'user_id': 1})
-    # data = form.data.update({'user_id': current_user.id})
+    data = form.data.update({'user_id': current_user.id})
     Article.create(**data)
-    # article = Article(**data)
-    # db.session.add(article)
     return Success(msg='创建成功')
 
 
@@ -83,9 +78,10 @@ def create_article():
 @group_required
 def update_article(id):
     current_user = get_current_user()
-    article = Article.published().get(id)
+    article = Article.published().filter(Article.id == id).all()
     if article is None:
         raise NotFound(msg='文章不存在')
+    article = article[0]
     if article.user_id != current_user.id:
         raise AuthFailed('没有权限')
     form = UpdateArticle().validate_for_api()

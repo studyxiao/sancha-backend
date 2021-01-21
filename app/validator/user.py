@@ -91,6 +91,7 @@ class UpdateUser(BaseForm):
 
     def validate_name(self, field):
         u = manager.user_model.get(name=field.data)
-
+        print(dir(self))
+        print(self.data)
         if u and u.id != get_current_user().id:
             raise ParameterException(msg='用户名已存在')

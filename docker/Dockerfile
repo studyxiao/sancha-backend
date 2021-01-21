@@ -15,4 +15,5 @@ ARG APP_CONFIG='production'
 ENV FLASK_ENV=${APP_CONFIG}
 COPY . /app
 RUN pip install -r requirements.txt --no-cache-dir --disable-pip-version-check -i https://pypi.tuna.tsinghua.edu.cn/simple
+
 # ENTRYPOINT ["sh", "/code/docker/boot.sh"]
